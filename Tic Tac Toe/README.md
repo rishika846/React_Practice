@@ -43,21 +43,21 @@ This Mermaid diagram maps out the React component instances and how they are nes
 graph TD
     App[App Component] --> Board[Board Component]
     
-    Board --> Row1["Row Component (idx: 0)"]
-    Board --> Row2["Row Component (idx: 3)"]
-    Board --> Row3["Row Component (idx: 6)"]
+    Board --> Row1["Row Component idx 0"]
+    Board --> Row2["Row Component idx 3"]
+    Board --> Row3["Row Component idx 6"]
     
-    Row1 --> Sq0["Square (index: 0)"]
-    Row1 --> Sq1["Square (index: 1)"]
-    Row1 --> Sq2["Square (index: 2)"]
+    Row1 --> Sq0["Square index 0"]
+    Row1 --> Sq1["Square index 1"]
+    Row1 --> Sq2["Square index 2"]
     
-    Row2 --> Sq3["Square (index: 3)"]
-    Row2 --> Sq4["Square (index: 4)"]
-    Row2 --> Sq5["Square (index: 5)"]
+    Row2 --> Sq3["Square index 3"]
+    Row2 --> Sq4["Square index 4"]
+    Row2 --> Sq5["Square index 5"]
     
-    Row3 --> Sq6["Square (index: 6)"]
-    Row3 --> Sq7["Square (index: 7)"]
-    Row3 --> Sq8["Square (index: 8)"]
+    Row3 --> Sq6["Square index 6"]
+    Row3 --> Sq7["Square index 7"]
+    Row3 --> Sq8["Square index 8"]
 
     style App fill:#3B82F6,stroke:#1D4ED8,stroke-width:2px,color:#fff
     style Board fill:#10B981,stroke:#047857,stroke-width:2px,color:#fff
@@ -94,42 +94,43 @@ React follows a **unidirectional data flow**. State values are passed down as **
 
 ### Data Flow Diagram
 
-The following diagram illustrates how props are sent down the tree, and how click events propagate back up to `Board` to trigger state modifications:
+The following diagram illustrates how props are sent down the tree, and how click events propagate back up to `Board` to trigger state modifications. It avoids any special characters (like pipes or single-quotes inside labels) to ensure standard Mermaid rendering on all platforms:
 
 ```mermaid
 flowchart TD
-    subgraph Board ["Board Component (State Holder)"]
-        valState["val: Array(9) ['X','O',null,...]"]
+    subgraph Board ["Board Component State Holder"]
+        valState["val: Array of 9 elements"]
         isTurnState["isTurn: boolean"]
-        clickFn["onSquareClick(index)"]
+        clickFn["onSquareClick index"]
     end
 
-    subgraph Row ["Row Component (Middleman)"]
-        valArr["valArr: Array(3)"]
+    subgraph Row ["Row Component Middleman"]
+        valArr["valArr: Array of 3 elements"]
         handler["handler: Function"]
         idx["idx: number"]
     end
 
-    subgraph Square ["Square Component (Interactive UI)"]
-        value["value: 'X' | 'O' | null"]
+    subgraph Square ["Square Component Interactive UI"]
+        value["value: X, O, or null"]
         handlerButton["handlerButton: Function"]
         index["index: number"]
     end
 
     %% Downward Props Flow
-    valState -->|val.slice(start, end)| valArr
-    clickFn -->|Passed as handler prop| handler
-    idx -->|Passed as row offset| idx
+    valState -->|sliced values| valArr
+    clickFn -->|handler callback| handler
+    idx -->|row offset| idx
 
-    valArr -->|valArr[0], valArr[1], valArr[2]| value
-    handler -->|Passed as handlerButton prop| handlerButton
-    idx -->|Calculated: idx + 0, idx + 1, idx + 2| index
+    valArr -->|single cell value| value
+    handler -->|handlerButton prop| handlerButton
+    idx -->|calculated index| index
 
     %% Upward Action Triggering
-    clickEvent["User Clicks Square Button"] -.->|onClick Event| handlerButton
-    handlerButton -.->|Invokes callback with index| handler
-    handler -.->|Bubbles up index parameter| clickFn
-    clickFn -->|Updates Board State| valState & isTurnState
+    clickEvent["User Clicks Square Button"] -.->|onClick event| handlerButton
+    handlerButton -.->|invokes callback with index| handler
+    handler -.->|bubbles up index| clickFn
+    clickFn -->|updates val state| valState
+    clickFn -->|toggles turn state| isTurnState
 ```
 
 ---
@@ -152,47 +153,29 @@ All mutable states live in the `Board` component. This lets `Board` act as the s
 
 ### State Transition Diagram
 
-The lifecycle of the state is structured around board clicks and resets:
+The lifecycle flow of the game state based on player moves:
 
 ```mermaid
-stateDiagram-v2
-    [*] --> InitState : Load Application / Reset
+flowchart TD
+    Init["Initialize Board (all cells null, isTurn = true)"] --> XTurn["Player X Turn (Waiting for move)"]
+    XTurn -->|Click cell| PlayX["Set val[index] = 'X', set isTurn = false"]
+    PlayX --> CheckWinnerX{"Check winner or draw"}
     
-    state InitState {
-        val : Array(9).fill(null)
-        isTurn : true (X's turn)
-    }
+    CheckWinnerX -->|Winner is X| WinX["Declare Winner: X"]
+    CheckWinnerX -->|Draw| DrawGame["Declare Draw"]
+    CheckWinnerX -->|No win or draw| OTurn["Player O Turn (Waiting for move)"]
+    
+    OTurn -->|Click cell| PlayO["Set val[index] = 'O', set isTurn = true"]
+    PlayO --> CheckWinnerO{"Check winner or draw"}
+    
+    CheckWinnerO -->|Winner is O| WinO["Declare Winner: O"]
+    CheckWinnerO -->|Draw| DrawGame
+    CheckWinnerO -->|No win or draw| XTurn
 
-    InitState --> X_Move : Click Empty Square
-    
-    state X_Move {
-        val[index] : 'X'
-        isTurn : false (O's turn)
-    }
-
-    state O_Move {
-        val[index] : 'O'
-        isTurn : true (X's turn)
-    }
-
-    X_Move --> WinCondition : Check Winner? Yes
-    O_Move --> WinCondition : Check Winner? Yes
-    
-    X_Move --> DrawCondition : Check Draw? Yes
-    O_Move --> DrawCondition : Check Draw? Yes
-
-    X_Move --> O_Move : Check Winner & Draw? No
-    O_Move --> X_Move : Check Winner & Draw? No
-    
-    WinCondition --> GameEnded
-    DrawCondition --> GameEnded
-    
-    GameEnded --> InitState : Click 'Reset Game'
-    
-    note right of GameEnded
-        Board is locked.
-        Click handlers return early.
-    end
+    WinX --> Reset["Click Reset Game"]
+    WinO --> Reset
+    DrawGame --> Reset
+    Reset --> Init
 ```
 
 ---
