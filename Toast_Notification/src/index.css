@@ -1,0 +1,62 @@
+body{
+    background-color: gray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.AppContainer{
+    background-color: white;
+    height:40rem;
+    width: 15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+}
+.Button{
+    margin:0.1rem;
+    color:white;
+}
+.ToastContainer{
+     position:fixed;
+     top:0.5rem;
+     right:0.6rem;
+     height:5rem;
+     width:15rem;
+     border-radius:0.5rem;
+     display: flex;
+     flex-direction: column;
+     gap: 4px;
+
+}
+.Toast{
+   padding: 1.5rem;
+   animation: slide 1s 1 ;
+   color: white;
+   position: relative;
+animation: slide 1s 1;
+
+   
+  
+   span{
+    position:absolute;
+    right:0.5rem;
+    cursor: pointer;
+
+
+   }
+
+}
+@keyframes slide {
+    0%{
+        transform: translateX(100%);
+        
+
+    }
+    100%{
+        transform: translateX(0%);
+
+    }
+    
+}
