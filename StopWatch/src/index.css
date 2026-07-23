@@ -1,0 +1,35 @@
+body,html,#root{
+  margin:0;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.Outer{
+  margin:0;
+  display: flex;
+  background-color: pink;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+.Container{
+  display: flex;
+  width: 25%;
+  margin: 2rem;
+  align-items: center;
+  justify-content: center;
+
+}
+.input{
+  height:2rem;
+  width:2rem;
+  padding:0.5rem;
+  margin:0.5rem
+
+}
+.Button{
+  margin:1rem;
+
+}
