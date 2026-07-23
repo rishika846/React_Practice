@@ -70,7 +70,7 @@ function App(){
 
   }
   function handleReset(){
-    setIsStart(false);
+    setIssta(false);
     setTime({
       "hour":0,
       "minute":0,
@@ -87,7 +87,7 @@ function App(){
       <input className="input" type="text" placeholder="SS" value={time.second} name="second" onChange={handleChange}/>
     </div>
     <div >
-        <button className="Button" onClick={handleStart} >{!isStart && time.hour!==0 && time.minute!=0 && time.second!==0?"Pause":"Start"}</button>
+        <button className="Button" onClick={handleStart} >{isStart?"Pause":"Start"}</button>
         <button className="Button" onClick={handleReset}>Reset</button>
       </div>
     </div>
