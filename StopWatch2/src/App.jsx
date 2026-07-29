@@ -1,59 +1,64 @@
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 
 function App(){
-  const[isStart ,setIsStart]=useState(false);
-
-  const[time,setTime]=useState({
+  const [time,setTime]=useState({
     "hour":0,
-    "minutes":0,
+    "minute":0,
     "seconds":0
-  });
-  useEffect(()=>{
+  })
+  const[isStart,setisStart]=useState(false);
+  useEffect(()=>{ 
     if(!isStart)return
     let id=setInterval(()=>{
       setTime(prev=>{
-        let copyTime={...prev}
-        copyTime.seconds++
-        if(copyTime.seconds>=60){
-          copyTime.minutes+=1;
-          copyTime.seconds=0
-        
+        let copy={...prev}
+        copy.seconds++
+        if(copy.seconds>59){
+          copy.minute++
+          copy.seconds=0;
         }
-        if(copyTime.minutes>=60){
-          copyTime.hour+=1;
-          copyTime.minutes=0;
-          copyTime.seconds=0; 
+        if(copy.minute>59){
+          copy.hour++
+          copy.minute=0
         }
-        return copyTime
-
+        return copy
       })
     },1000)
     return ()=>clearInterval(id)
-  },[isStart])
+   
 
+  },[isStart])
+  function handleInput(e){
+    let name=e.target.name;
+    let value=Number(e.target.value);
+    setTime(prev=>(
+      {...prev,[name]:value}
+    ))
+
+  }
   function handleStart(){
-    setIsStart(prev=>!prev);
+    setisStart(prev=>!prev);
+
   }
   function handleReset(){
-    setIsStart(false);
+    setisStart(false)
     setTime({
       "hour":0,
-      "minutes":0,
+      "minute":0,
       "seconds":0
     })
   }
   return(
     <>
+    <input type="text" value={time.hour} onChange={handleInput} name="hour"/>:
+    <input type="text" value={time.minute} onChange={handleInput} name="minute"/>:
+    <input type="text"  value={time.seconds} onChange={handleInput} name="seconds"/>:
     <div>
-     <input className="input" type="text" placeholder="HH"  value={time.hour} name="hour"/>:
-     <input className="input" type="text" placeholder="MM" value={time.minutes} name="minutes"/>:
-     <input className="input" type="text" placeholder="SS" value={time.seconds} name="seconds" />
-    </div>
-    <div>
-      <button className="button" onClick={handleStart}>{!isStart?"Start":"Pause"}</button>
-      <button className="button" onClick={handleReset}>Reset</button>
+      <button onClick={handleStart}>{!isStart?"Start":"Pause"}</button>
+      <button onClick={handleReset}>Reset</button>
     </div>
     </>
   )
+
 }
 export default App
